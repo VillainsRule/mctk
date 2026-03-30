@@ -1,0 +1,14 @@
+{
+    "name": "mctk",
+    "main": "cli/main.ts",
+    "scripts": {
+        "checktok": "bun cli/checktok",
+        "c2t": "bun cli/c2t"
+    },
+    "dependencies": {
+        "socks": "^2.8.7"
+    },
+    "devDependencies": {
+        "@types/bun": "^1.3.6"
+    }
+}

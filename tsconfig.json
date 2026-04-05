@@ -2,7 +2,7 @@
     "compilerOptions": {
         "target": "ES2024",
         "lib": ["ES2024"],
-        "moduleResolution": "node10",
+        "moduleResolution": "bundler",
         "module": "es2022",
 
         "strict": true,

@@ -1,10 +1,11 @@
 {
     "compilerOptions": {
         "target": "ES2024",
-        "lib": ["ES2024"],
+        "lib": [
+            "ES2024"
+        ],
         "moduleResolution": "bundler",
         "module": "es2022",
-
         "strict": true,
         "noImplicitAny": true,
         "noImplicitThis": true,
@@ -21,8 +22,15 @@
         "forceConsistentCasingInFileNames": true,
         "skipLibCheck": true,
         "noEmitOnError": true,
-        "exactOptionalPropertyTypes": true
+        "exactOptionalPropertyTypes": true,
+        "types": [
+            "bun"
+        ]
     },
-    "include": ["cli"],
-    "exclude": ["node_modules"]
+    "include": [
+        "cli"
+    ],
+    "exclude": [
+        "node_modules"
+    ]
 }

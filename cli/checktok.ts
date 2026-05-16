@@ -1,4 +1,5 @@
 import fs from 'node:fs';
+import os from 'node:os';
 import path from 'node:path';
 
 import MinecraftUtil from './util/MinecraftUtil';
@@ -47,9 +48,14 @@ const mainLoop = async (token: string, i: number) => {
         if (connectionResult === ConnectionResult.Banned) log(red(`[${i}] [BANNED] ${profile.name} (${message?.slice(0, 30)}...)`));
         else if (connectionResult === ConnectionResult.AlreadyOnline) log(red(`[${i}] [ALREADY ONLINE] ${profile.name} (${message?.slice(0, 30)}...)`));
         else {
-            const output = `[${i}] ${await statUtil.getPlanckeStats(profile.name)} mctoken: ${token}`;
-            log(green(output));
-            fs.appendFileSync(ouputFile, output + '\n');
+            const info = `[${i}] [UNBANNED] ${await statUtil.getStats(profile.id, profile.name)}`;
+            const fileOutput = `${info} mctoken: ${token}`;
+
+            const tmpSave = path.join(os.tmpdir(), `token_${profile.name}.txt`);
+            fs.writeFileSync(tmpSave, fileOutput);
+            fs.appendFileSync(ouputFile, fileOutput + '\n');
+
+            log(green(info + ` file: ${tmpSave}`));
         }
     } catch (e) {
         console.log(`connection error: ${e}`);

@@ -178,7 +178,7 @@ rl.on('line', async (line) => {
         else if (connectionResult === ConnectionResult.AlreadyOnline) status = `[ALREADY ONLINE] ${profile.name} (${message?.slice(0, 30)}...)`;
         else {
             console.log('verified unbanned, fetching stats...');
-            status = `[UNBANNED] ${await statUtil.getPlanckeStats(profile.name)}`;
+            status = `[UNBANNED] ${await statUtil.getStats(profile.id, profile.name)}`;
         }
 
         const output = status + ` mctoken: ${token}`;

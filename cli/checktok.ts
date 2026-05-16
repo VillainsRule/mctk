@@ -8,11 +8,17 @@ import { ConnectionResult } from './types.d';
 
 const red = (text: string) => `\x1b[31m${text}\x1b[0m`;
 const green = (text: string) => `\x1b[32m${text}\x1b[0m`;
-const lightGray = (text: string) => `\x1b[90m${text}\x1b[0m`;
+const gray = (text: string) => `\x1b[90m${text}\x1b[0m`;
 
 const log = (...args: any[]) => console.log(`\x1b[90m[${new Date().toTimeString().slice(0, 8)}]\x1b[0m ${args[0]}`, ...args.slice(1));
 
 const inputFile = path.join(import.meta.dirname, '..', 'input.txt');
+if (!fs.existsSync(inputFile)) {
+    fs.writeFileSync(inputFile, '');
+    console.log(red('please add tokens to this file: ' + inputFile));
+    process.exit(0);
+}
+
 const ouputFile = path.join(import.meta.dirname, '..', 'output.txt');
 
 const knownNames: string[] = [];
@@ -34,7 +40,7 @@ const mainLoop = async (token: string, i: number) => {
     if (knownNames.includes(profile.name)) return log(red(`[${i}] [DUPLICATE] ${profile.name} -> skipping...`));
     knownNames.push(profile.name);
 
-    log(lightGray(`[${i}] ${profile.name} -> loading...`));
+    log(gray(`[${i}] ${profile.name} -> loading...`));
 
     try {
         const { connectionResult, message } = await mcConn.checkBan('mc.hypixel.net', 25565, token, profile.name, profile.id);

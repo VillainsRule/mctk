@@ -2,10 +2,20 @@ import fs from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
 
+import { createInterface } from 'node:readline';
+
 import https from 'node:https';
 import { IncomingHttpHeaders } from 'node:http';
 
+import MinecraftUtil from './util/MinecraftUtil.ts';
 import statUtil from './util/StatUtil';
+
+import { ConnectionResult } from './types.d';
+
+const red = (text: string) => `\x1b[31m${text}\x1b[0m`;
+const green = (text: string) => `\x1b[32m${text}\x1b[0m`;
+const cyan = (text: string) => `\x1b[36m${text}\x1b[0m`;
+const gray = (text: string) => `\x1b[90m${text}\x1b[0m`;
 
 const req = (url: string, params: { method?: string, headers?: Record<string, string>, body?: any } = {}): Promise<{
     status: number;
@@ -123,7 +133,7 @@ const getXBL = async (cookie: string) => {
     return { xbl: `XBL3.0 x=${uhs};${mcEntry.Item2.Token}`, decoded, uhs };
 }
 
-const getProfile = async (xbl: string): Promise<{ name: string, token: string }> => {
+const getAccessToken = async (xbl: string): Promise<string> => {
     const { body } = await req('https://api.minecraftservices.com/authentication/login_with_xbox', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -131,18 +141,10 @@ const getProfile = async (xbl: string): Promise<{ name: string, token: string }>
     });
 
     const { access_token } = JSON.parse(body);
-
-    const profile = await req('https://api.minecraftservices.com/minecraft/profile', {
-        headers: { Authorization: `Bearer ${access_token}` },
-    });
-
-    const body2 = JSON.parse(profile.body);
-    return { name: body2.name, token: access_token };
+    return access_token;
 }
 
-import { createInterface } from 'node:readline';
-
-console.log('enter a cookie file:\n');
+console.log(cyan('enter a cookie file:\n'));
 
 const rl = createInterface({
     input: process.stdin,
@@ -152,25 +154,41 @@ const rl = createInterface({
 rl.on('line', async (line) => {
     if (line.includes('__Host-MSAAUTHP')) {
         rl.close();
-        console.log('\nrunning xbox live...');
+        console.log(gray('\nrunning xbox live...'));
 
         const cookie = line.split('__Host-MSAAUTHP')[1].trim();
 
         const { xbl } = await getXBL(cookie);
-        console.log('got xbox live token, fetching profile...');
+        console.log(gray('got xbox live token, fetching access token...'));
 
-        const profile = await getProfile(xbl);
-        console.log('got profile, fetching stats...');
+        const token = await getAccessToken(xbl);
+        console.log(gray('got token, fetching profile...'));
 
-        const stats = await statUtil.getPlanckeStats(profile.name);
+        const mcConn = new MinecraftUtil();
+
+        const profile = await mcConn.getProfile(token);
+        if (!profile.ok) return console.log(red(`failed to get profile: ${profile.status}`));
+
+        console.log(gray('got profile, checking hypixel ban...'));
+
+        let status;
+
+        const { connectionResult, message } = await mcConn.checkBan('mc.hypixel.net', 25565, token, profile.name, profile.id);
+        if (connectionResult === ConnectionResult.Banned) status = `[BANNED] ${profile.name} (${message?.slice(0, 30)}...)`;
+        else if (connectionResult === ConnectionResult.AlreadyOnline) status = `[ALREADY ONLINE] ${profile.name} (${message?.slice(0, 30)}...)`;
+        else {
+            console.log('verified unbanned, fetching stats...');
+            status = `[UNBANNED] ${await statUtil.getPlanckeStats(profile.name)}`;
+        }
+
+        const output = status + ` mctoken: ${token}`;
+
+        console.log('');
+        console.log(status.includes('UNBANNED') ? green(output) : red(output));
         console.log('');
 
-        const output = `${stats} mctoken: ${profile.token}`;
-
-        console.log(output);
-        console.log('');
         const tempSave = path.join(os.tmpdir(), `cookie_${profile.name}.txt`);
         fs.writeFileSync(tempSave, output);
-        console.log('saved to ' + tempSave);
+        console.log(gray('saved to ' + tempSave));
     }
 });

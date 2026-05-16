@@ -52,7 +52,8 @@ const mainLoop = async (token: string, i: number) => {
             const fileOutput = `${info} mctoken: ${token}`;
 
             const tmpSave = path.join(os.tmpdir(), `token_${profile.name}.txt`);
-            fs.writeFileSync(tmpSave, fileOutput);
+            fs.writeFileSync(tmpSave, token);
+
             fs.appendFileSync(ouputFile, fileOutput + '\n');
 
             log(green(info + ` file: ${tmpSave}`));

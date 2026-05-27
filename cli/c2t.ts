@@ -177,7 +177,7 @@ rl.on('line', async (line) => {
         if (connectionResult === ConnectionResult.Banned) status = `[BANNED] ${profile.name} (${message?.slice(0, 30)}...)`;
         else if (connectionResult === ConnectionResult.AlreadyOnline) status = `[ALREADY ONLINE] ${profile.name} (${message?.slice(0, 30)}...)`;
         else {
-            console.log('verified unbanned, fetching stats...');
+            console.log(gray('verified unbanned, fetching stats...'));
             status = `[UNBANNED] ${await statUtil.getStats(profile.id, profile.name)}`;
         }
 

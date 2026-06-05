@@ -16,7 +16,7 @@ class MinecraftUtil {
             const response = await fetch('https://api.minecraftservices.com/minecraft/profile', {
                 headers: { 'Authorization': `Bearer ${accessToken}` },
                 signal: AbortSignal.timeout(10000),
-                proxy: Bun.env.LOW_HTTPS_PROXY
+                proxy: process.env.LOW_HTTPS_PROXY
             });
 
             if (response.status === 200) {
@@ -30,7 +30,7 @@ class MinecraftUtil {
     }
 
     checkBan = (host: string, port: number, accessToken: string, username: string, profileId: string) => new Promise<{ connectionResult: ConnectionResult, message?: string }>(async (resolve) => {
-        const url = new URL(Bun.env.SOCKS_PROXY);
+        const url = new URL(process.env.SOCKS_PROXY);
 
         const { socket } = await SocksClient.createConnection({
             proxy: {
@@ -136,7 +136,7 @@ class MinecraftUtil {
                                 'Content-Type': 'application/json'
                             },
                             signal: AbortSignal.timeout(10000),
-                            proxy: Bun.env.HIGH_HTTPS_PROXY
+                            proxy: process.env.HIGH_HTTPS_PROXY
                         });
 
                         if (response.status === 204) {

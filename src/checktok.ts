@@ -68,5 +68,5 @@ const token = input.split('\n').map(e => e.trim()).filter(e => e.length > 0);
 
 for (const tok of token) {
     mainLoop(tok, token.indexOf(tok) + 1);
-    await new Promise(r => setTimeout(r, Number(Bun.env.WAIT_BETWEEN)));
+    await new Promise(r => setTimeout(r, Number(process.env.WAIT_BETWEEN)));
 }

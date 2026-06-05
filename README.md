@@ -6,7 +6,7 @@
 <br><br>
 <h2 align='center'>initial setup</h2>
 
-1. install [bun](https://bun.sh)
+1. install [bun](https://bun.sh) (bun required for `proxy: url`)
 2. `git clone https://github.com/VillainsRule/mctk && cd mctk`
 3. `cp .env.example .env` & fill in values
 4. `bun install`
